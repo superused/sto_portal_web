@@ -1,0 +1,46 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+  $(function() {
+    let leftListItem = '<div role="listitem" class="token w-dyn-item"><a href="/tokens/colossusxt" class="token-names w-inline-block"><img loading="lazy" alt="" src="https://uploads-ssl.webflow.com/64d0c750376f3c1159c88f27/64d4f5d7c31e8b67688b6a06_colossusxt-colx-logo.png" sizes="32px" class="token-image"><div class="token-name-wrapper"><div class="token-name">ColossusXT</div><div class="token-ticker">COLX</div></div></a></div>';
+    let rightListItem = '<div role="listitem" class="token-info-item w-dyn-item"><div class="token-info"><div class="token-cell"><div>$3,746,450</div></div><div class="token-cell"><div>$0.0002943</div></div><div class="token-cell"><div class="featured-blog-name token token-cell"><img src="https://uploads-ssl.webflow.com/64ccd44850f2779b0593b024/64d21321326fd145ff719d12_chevron-down.svg" loading="lazy" alt=""><div><div class="failure">0.72%</div></div></div></div><div class="token-cell"><div class="dark">$1,840,242</div></div><div class="token-cell"><div class="dark">INX ONE</div></div><div class="token-cell"><img loading="lazy" alt="" src="https://uploads-ssl.webflow.com/64d0c750376f3c1159c88f27/64d4f38a97ce0cecbb33d85e_btc-chart.png" class="price-trend"></div></div></div>';
+    $(document).ready(async () => {
+      let infoes = await fetchInfoes();
+      console.log(infoes)
+      const num = 5;
+      let cnt = 0;
+      for (let key in infoes) {
+        let info = infoes[key];
+        console.log(info)
+        let leftItem = $(leftListItem);
+        leftItem.find('a').attr('href', '/tokens/' + info.id);
+        leftItem.find('img').attr('src', info.logo);
+        leftItem.find('img').attr('src', info.logo);
+        leftItem.find('.token-name').text(info.name);
+        leftItem.find('.token-ticker').text(info.symbol);
+        $('.token-list-wrapper.w-dyn-list .token-list').append(leftItem);
+
+        let rightItem = $(rightListItem);
+        let imgDir = info.logo.split('/').slice(0, -2).join('/');
+        rightItem.find('.token-cell').eq(0).find('div').text('$' + Number(info.marketCapUsd).toLocaleString());
+        rightItem.find('.token-cell').eq(1).find('div').text('$' + Number(info.priceUsd).toLocaleString());
+        rightItem.find('.token-cell').eq(2).find('img').attr('src', imgDir + (Number(info.changePercent24Hr) >= 0 ? '/up.svg' : '/down.svg'));
+        rightItem.find('.token-cell').eq(2).find('.failure').text(Math.abs(info.changePercent24Hr).toLocaleString() + '%');
+        if (Number(info.changePercent24Hr) >= 0) rightItem.find('.token-cell').eq(2).find('.failure').css('color','#009956');
+        rightItem.find('.token-cell').eq(4).find('div').text('$' + Number(info.volumeUsd24Hr).toLocaleString());
+        rightItem.find('.token-cell').eq(5).find('div').text('');
+        $('.tokein-info-list-wrapper.w-dyn-list .token-info-list').append(rightItem);
+        cnt++;
+        if (cnt >= num) break;
+      }
+    });
+  });
+  async function fetchInfoes() {
+    const response = await fetch('https://prod-multi-auth.bclabo.biz/api/sto/info');
+    const data = await response.json();
+    const infoes = {};
+    for (const d of data) {
+      infoes[d.id] = d;
+    }
+    return infoes;
+  }
+</script>
